@@ -1,0 +1,2 @@
+# popLottery
+ lottery game project
