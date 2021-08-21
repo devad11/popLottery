@@ -14,6 +14,7 @@ import java.util.List;
 @Setter
 @Builder
 public class TicketLineDto {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
@@ -22,7 +23,8 @@ public class TicketLineDto {
     @Size(min=3, max=3)
     private List<Integer> lineValues;
 
-    private int lineResult;
+    @Column(name = "lineResult")
+    private int lineResult = 0;
 
     @JsonBackReference
     @ManyToOne

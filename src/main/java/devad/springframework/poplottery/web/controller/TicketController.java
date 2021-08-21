@@ -6,8 +6,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
-import java.util.Map;
-import java.util.Optional;
 
 @RequestMapping("/api/v1/ticket")
 @RestController
@@ -57,6 +55,24 @@ public class TicketController {
         else
         {
             TicketDto ticket = ticketService.amend(ticketId, noOfLines);
+            response = new ResponseEntity<>(ticket, HttpStatus.OK);
+        }
+
+        return response;
+    }
+
+    @PutMapping("/check/{ticketId}")
+    ResponseEntity<TicketDto> checkTicket(@PathVariable("ticketId") int ticketId) {
+        ResponseEntity<TicketDto> response;
+
+        if (ticketId == 0)
+        {
+            // todo add error
+            response = new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        else
+        {
+            TicketDto ticket = ticketService.checkTicket(ticketId);
             response = new ResponseEntity<>(ticket, HttpStatus.OK);
         }
 

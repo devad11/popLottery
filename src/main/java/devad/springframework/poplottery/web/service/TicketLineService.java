@@ -9,4 +9,6 @@ public interface TicketLineService {
 
     List<TicketLineDto> createLines(TicketDto ticketDto, int noOfLines);
     void saveNewLines(List<TicketLineDto> ticketLineDto);
+
+    List<TicketLineDto> checkLines(List<TicketLineDto> ticket);
 }

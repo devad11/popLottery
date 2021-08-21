@@ -32,6 +32,7 @@ public class TicketDto {
     @OneToMany(mappedBy = "ticket", cascade = CascadeType.ALL)
     @Size(min=3)
     @Column(nullable = false)
+    @OrderBy("lineResult DESC")
     private List<TicketLineDto> ticketLines;
     private int ticketResult;
 

@@ -12,4 +12,6 @@ public interface TicketService {
     List<TicketDto> listAllTickets();
 
     TicketDto amend(int id, int noOfLines);
+
+    TicketDto checkTicket(int ticketId);
 }
