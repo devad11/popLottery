@@ -19,7 +19,7 @@ public class TicketDto {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
+    private int id;
 
     @CreationTimestamp
     @Column(updatable = false)

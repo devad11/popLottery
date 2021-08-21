@@ -16,7 +16,7 @@ import java.util.List;
 public class TicketLineDto {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
+    private int id;
 
     @ElementCollection
     @Size(min=3, max=3)

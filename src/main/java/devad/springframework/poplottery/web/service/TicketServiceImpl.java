@@ -4,14 +4,12 @@ import devad.springframework.poplottery.web.dao.TicketDao;
 import devad.springframework.poplottery.web.model.TicketDto;
 import devad.springframework.poplottery.web.model.TicketLineDto;
 import lombok.extern.slf4j.Slf4j;
-import org.joda.time.DateTime;
-import org.joda.time.DateTimeZone;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.sql.Timestamp;
-import java.time.Instant;
 import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Slf4j
 @Service
@@ -23,23 +21,16 @@ public class TicketServiceImpl implements TicketService {
     @Autowired
     TicketLineService ticketLineScv;
 
-    // todo update it to return from db
-    @Override
-    public TicketDto getTicketById(long ticketId) {
-        return TicketDto.builder()
-                .id(12)
-                .ticketLines(
-                        new ArrayList<>()
-                        {{
-                            add(TicketLineDto.builder()
-                                .id(13)
-                                .lineValues(new ArrayList<>()
-                                {{
-                                    add(0);
-                                    add(1);
-                                    add(2);
-                                }}).build());
-                        }}).build();
+    public TicketDto getTicketById(int ticketId) {
+        Optional<TicketDto> ticket = ticketDao.findById(ticketId);
+        if (ticket.isPresent())
+        {
+            return ticket.get();
+        }
+        else
+        {
+            return null;
+        }
     }
 
     @Override
@@ -51,12 +42,23 @@ public class TicketServiceImpl implements TicketService {
     }
 
     @Override
-    public void saveNewTicket(TicketDto ticket) {
-        ticketDao.save(this.getTicketById(1));
+    public List<TicketDto> listAllTickets() {
+        return ticketDao.findAll();
     }
 
     @Override
-    public List<TicketDto> listAllTickets() {
-        return ticketDao.findAll();
+    public void amend(int id, int noOfLines) {
+        Optional<TicketDto> ticketExist = ticketDao.findById(id);
+
+        if (ticketExist.isPresent())
+        {
+            TicketDto ticket = ticketDao.findById(id).get();
+            List<TicketLineDto> lines = ticket.getTicketLines();
+            List<TicketLineDto> newLines = ticketLineScv.createLines(ticket, noOfLines);
+            List<TicketLineDto> allLines = Stream.concat(lines.stream(), newLines.stream()).collect(Collectors.toList());
+            ticket.setTicketLines(allLines);
+            ticketDao.save(ticket);
+        }
+
     }
 }
