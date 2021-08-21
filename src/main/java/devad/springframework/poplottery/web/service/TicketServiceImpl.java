@@ -20,16 +20,19 @@ public class TicketServiceImpl implements TicketService {
     @Autowired
     TicketDao ticketDao;
 
+    @Autowired
+    TicketLineService ticketLineScv;
+
     // todo update it to return from db
     @Override
-    public TicketDto getTicketById(UUID ticketId) {
+    public TicketDto getTicketById(long ticketId) {
         return TicketDto.builder()
-                .id(UUID.randomUUID())
+                .id(12)
                 .ticketLines(
                         new ArrayList<>()
                         {{
                             add(TicketLineDto.builder()
-                                .id(UUID.randomUUID())
+                                .id(13)
                                 .lineValues(new ArrayList<>()
                                 {{
                                     add(0);
@@ -40,8 +43,16 @@ public class TicketServiceImpl implements TicketService {
     }
 
     @Override
-    public TicketDto saveNewTicket(TicketDto ticketDto) {
-        return ticketDao.save(ticketDto);
+    public TicketDto createNewTicket(int noOfLines) {
+        TicketDto ticket = TicketDto.builder().build();
+        ticket = ticketDao.save(ticket);
+        ticket.setTicketLines(ticketLineScv.createLines(ticket, noOfLines));
+        return ticketDao.save(ticket);
+    }
+
+    @Override
+    public void saveNewTicket(TicketDto ticket) {
+        ticketDao.save(this.getTicketById(1));
     }
 
     @Override

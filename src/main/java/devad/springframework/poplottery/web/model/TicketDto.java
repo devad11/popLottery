@@ -1,16 +1,13 @@
 package devad.springframework.poplottery.web.model;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.UpdateTimestamp;
-import org.joda.time.DateTime;
-
 import javax.persistence.*;
 import javax.validation.constraints.Size;
 import java.sql.Timestamp;
 import java.util.List;
-import java.util.UUID;
 
 @Entity
 @NoArgsConstructor
@@ -21,10 +18,8 @@ import java.util.UUID;
 public class TicketDto {
 
     @Id
-    @GeneratedValue(generator ="UUID")
-    @GenericGenerator(name = "UUID", strategy = "org.hibernate.id.UUIDGenerator")
-    @Column(nullable = false, updatable = false, length = 36, columnDefinition = "varchar")
-    private UUID id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private long id;
 
     @CreationTimestamp
     @Column(updatable = false)
@@ -33,6 +28,7 @@ public class TicketDto {
     @UpdateTimestamp
     private Timestamp lastModified;
 
+    @JsonManagedReference
     @OneToMany(mappedBy = "ticket", cascade = CascadeType.ALL)
     @Size(min=3)
     @Column(nullable = false)
