@@ -47,17 +47,20 @@ public class TicketController {
 
     @PutMapping({"/{ticketId}"})
     ResponseEntity<TicketDto> addNewLines(@PathVariable("ticketId") int ticketId, @RequestBody int noOfLines) {
+        ResponseEntity<TicketDto> response;
+
         if (ticketId == 0 || noOfLines == 0)
         {
             // todo add error
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            response = new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
         else
         {
-            ticketService.amend(ticketId, noOfLines);
+            TicketDto ticket = ticketService.amend(ticketId, noOfLines);
+            response = new ResponseEntity<>(ticket, HttpStatus.OK);
         }
 
-        return new ResponseEntity<>(ticketService.getTicketById(ticketId), HttpStatus.OK);
+        return response;
     }
 
 }

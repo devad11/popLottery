@@ -47,18 +47,26 @@ public class TicketServiceImpl implements TicketService {
     }
 
     @Override
-    public void amend(int id, int noOfLines) {
+    public TicketDto amend(int id, int noOfLines) {
         Optional<TicketDto> ticketExist = ticketDao.findById(id);
 
         if (ticketExist.isPresent())
         {
             TicketDto ticket = ticketDao.findById(id).get();
-            List<TicketLineDto> lines = ticket.getTicketLines();
-            List<TicketLineDto> newLines = ticketLineScv.createLines(ticket, noOfLines);
-            List<TicketLineDto> allLines = Stream.concat(lines.stream(), newLines.stream()).collect(Collectors.toList());
-            ticket.setTicketLines(allLines);
-            ticketDao.save(ticket);
+            if (ticket.isChecked())
+            {
+                return null;
+            }
+            else
+            {
+                List<TicketLineDto> lines = ticket.getTicketLines();
+                List<TicketLineDto> newLines = ticketLineScv.createLines(ticket, noOfLines);
+                List<TicketLineDto> allLines = Stream.concat(lines.stream(), newLines.stream()).collect(Collectors.toList());
+                ticket.setTicketLines(allLines);
+                return ticketDao.save(ticket);
+            }
         }
 
+        return null;
     }
 }
