@@ -1,6 +1,5 @@
 package devad.springframework.poplottery.web.service;
 
-import devad.springframework.poplottery.web.dao.TicketDao;
 import devad.springframework.poplottery.web.dao.TicketLineDao;
 import devad.springframework.poplottery.web.model.TicketDto;
 import devad.springframework.poplottery.web.model.TicketLineDto;
@@ -10,7 +9,6 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
-import java.util.stream.Collectors;
 
 @Service
 public class TicketLineServiceImpl implements TicketLineService {
@@ -18,8 +16,12 @@ public class TicketLineServiceImpl implements TicketLineService {
     @Autowired
     TicketLineDao ticketLineDao;
 
-    TicketService ticketSvc;
-
+    /**
+     * Generates new lines for a ticket
+     * @param ticketDto the parent object
+     * @param noOfLines number of lines to create
+     * @return list of lines
+     */
     @Override
     public List<TicketLineDto> createLines(TicketDto ticketDto, int noOfLines) {
         List<TicketLineDto> lines = new ArrayList<>();
@@ -32,6 +34,10 @@ public class TicketLineServiceImpl implements TicketLineService {
         return lines;
     }
 
+    /**
+     * Generates specific numbers from a specific range
+     * @return a list of the generated numbers
+     */
     private List<Integer> generateValues(){
         int noOfValues = 3;
         int minValue = 0;
@@ -46,82 +52,73 @@ public class TicketLineServiceImpl implements TicketLineService {
         return values;
     }
 
+    /**
+     * Saves all ticket lines
+     * @param ticketLines List of ticket lines
+     */
     @Override
     public void saveNewLines(List<TicketLineDto> ticketLines) {
             ticketLineDao.saveAll(ticketLines);
     }
 
+    /**
+     * Calculates the result of each line
+     * @param ticketLines list of all lines belong to a ticket
+     * @return returns all ticket lines updated with individual results
+     */
     @Override
     public List<TicketLineDto> checkLines(List<TicketLineDto> ticketLines) {
         int sumNumber = 2;
         int winSum = 10;
         int winAllSame = 5;
         int winDifferentFromFirst = 1;
-        List<List<Integer>> orderDetails = new ArrayList<>();
-        List<Integer> highestPoint = new ArrayList<>();
-        List<Integer> middlePoint = new ArrayList<>();
-        List<Integer> lowestPoint = new ArrayList<>();
-        List<Integer> noPoint = new ArrayList<>();
 
         for(TicketLineDto line: ticketLines)
         {
             List<Integer> values = line.getLineValues();
             if(sumCheck(values, sumNumber)){
                 line.setLineResult(winSum);
-                highestPoint.add(line.getId());
             }
             else if(this.allSameCheck(values))
             {
                 line.setLineResult(winAllSame);
-                middlePoint.add(line.getId());
             }
             else if(this.differentFromFirstCheck(values))
             {
                 line.setLineResult(winDifferentFromFirst);
-                lowestPoint.add(line.getId());
-            }
-            else
-            {
-                noPoint.add(line.getId());
             }
         }
-
-        orderDetails.add(highestPoint);
-        orderDetails.add(middlePoint);
-        orderDetails.add(lowestPoint);
-        orderDetails.add(noPoint);
-
-        // order by result
-        ticketLines = this.orderByResult(orderDetails, ticketLines);
-
-        //ticketLines.stream().forEachOrdered(l -> l.getLineResult());
-        //ticketLines.stream().sorted().toArray();
 
         return ticketLines;
     }
 
-    private List<TicketLineDto> orderByResult(List<List<Integer>> orderDetails, List<TicketLineDto> ticketLines) {
-        List<TicketLineDto> orderedLines = new ArrayList<>();
-        for(int i = 0; i < orderDetails.size(); i++)
-        {
-            int priority = i;
-            orderedLines.addAll(ticketLines.stream().filter(l -> orderDetails.get(priority).contains(l.getId())).collect(Collectors.toList()));
-        }
-
-        return orderedLines;
-    }
-
+    /**
+     * If the sum of all numbers in line equal to a specific value, adds the highest result
+     * @param values all numbers from a line
+     * @param sumNumber the specific number to match with
+     * @return boolean based on win or lose this check
+     */
     private boolean sumCheck(List<Integer> values, int sumNumber){
         int sumOfValues = values.stream().mapToInt(Integer::intValue).sum();
         return sumOfValues == sumNumber;
     }
 
+    /**
+     * If all the numbers after first are different from first, adds the middle result
+     * @param values all numbers from a line
+     * @return boolean based on win or lose this check
+     */
     private boolean differentFromFirstCheck(List<Integer> values) {
         int firstValue = values.get(0);
         long matchWithFirst = values.stream().filter(v -> v != firstValue).count();
         return matchWithFirst == (values.size() - 1);
     }
 
+    /**
+     * If all numbers are the same in a line, adds the middle result
+     * @param values all numbers from a line
+     * @return boolean based on win or lose this check
+     */
     private boolean allSameCheck(List<Integer> values){
         int firstValue = values.get(0);
         long matchWithFirst = values.stream().filter(v -> v == firstValue).count();

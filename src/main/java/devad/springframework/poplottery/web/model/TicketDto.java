@@ -34,7 +34,6 @@ public class TicketDto {
     @Column(nullable = false)
     @OrderBy("lineResult DESC")
     private List<TicketLineDto> ticketLines;
-    private int ticketResult;
 
     @Column(nullable = false)
     private boolean checked = false;

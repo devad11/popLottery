@@ -2,25 +2,23 @@ package devad.springframework.poplottery.web.controller;
 
 import devad.springframework.poplottery.web.model.TicketDto;
 import devad.springframework.poplottery.web.service.TicketService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
+@RequiredArgsConstructor
 @RequestMapping("/api/v1/ticket")
 @RestController
 public class TicketController {
 
     private final TicketService ticketService;
 
-    public TicketController(TicketService ticketService) {
-        this.ticketService = ticketService;
-    }
-
-    @PostMapping("/newticket") // todo create form (@RequestBody TicketDto ticketDto)
-    public ResponseEntity createTicket(@RequestBody int NoOfLines){
-        ticketService.createNewTicket(NoOfLines);
-        return new ResponseEntity(HttpStatus.CREATED);
+    @PostMapping("/newticket")
+    public ResponseEntity<TicketDto> createTicket(@RequestBody int NoOfLines){
+        TicketDto ticket = ticketService.createNewTicket(NoOfLines);
+        return new ResponseEntity(ticket, HttpStatus.CREATED);
     }
 
     @GetMapping({"/{ticketId}"})
@@ -72,10 +70,9 @@ public class TicketController {
         }
         else
         {
-            TicketDto ticket = ticketService.checkTicket(ticketId);
-            response = new ResponseEntity<>(ticket, HttpStatus.OK);
+            ticketService.checkTicket(ticketId);
+            response = new ResponseEntity<>(this.ticketService.getTicketById(ticketId), HttpStatus.OK);
         }
-
         return response;
     }
 
