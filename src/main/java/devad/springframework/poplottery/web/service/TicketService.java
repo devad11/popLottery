@@ -7,9 +7,12 @@ import java.util.List;
 public interface TicketService {
 
     TicketDto getTicketById(int ticketId);
+
     TicketDto createNewTicket(int noOfLines);
+
     List<TicketDto> listAllTickets();
+
     TicketDto amend(int id, int noOfLines);
 
-    void checkTicket(int ticketId);
+    TicketDto checkTicket(int ticketId);
 }

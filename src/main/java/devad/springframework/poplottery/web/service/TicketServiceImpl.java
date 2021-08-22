@@ -4,6 +4,7 @@ import devad.springframework.poplottery.web.dao.TicketDao;
 import devad.springframework.poplottery.web.model.TicketDto;
 import devad.springframework.poplottery.web.model.TicketLineDto;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -14,12 +15,19 @@ import java.util.stream.Stream;
 @Service
 public class TicketServiceImpl implements TicketService {
 
+    @Autowired
     TicketDao ticketDao;
+    @Autowired
     TicketLineService ticketLineScv;
 
+    /**
+     * Find a ticket with a specific id
+     * @param ticketId id of a ticket
+     * @return gets the specific ticket ordered by results
+     */
+    @Override
     public TicketDto getTicketById(int ticketId) {
-        TicketDto ticket = this.ticketDao.findById(ticketId).orElse(null);
-            return ticket;
+        return this.ticketDao.findById(ticketId).orElse(null);
     }
 
     /**
@@ -29,6 +37,11 @@ public class TicketServiceImpl implements TicketService {
      */
     @Override
     public TicketDto createNewTicket(int noOfLines) {
+        if (noOfLines <= 0)
+        {
+            return null;
+        }
+
         TicketDto ticket = TicketDto.builder().build();
         ticket = this.ticketDao.save(ticket);
         ticket.setTicketLines(this.ticketLineScv.createLines(ticket, noOfLines));
@@ -52,14 +65,13 @@ public class TicketServiceImpl implements TicketService {
      */
     @Override
     public TicketDto amend(int id, int noOfLines) {
-        Optional<TicketDto> ticketExist = this.ticketDao.findById(id);
+        TicketDto ticket = this.ticketDao.findById(id).orElse(null);
 
-        if (ticketExist.isPresent())
+        if (noOfLines > 0 && ticket != null)
         {
-            TicketDto ticket = ticketExist.get();
             if (ticket.isChecked())
             {
-                return null;
+                return ticket;
             }
             else
             {
@@ -78,22 +90,23 @@ public class TicketServiceImpl implements TicketService {
      * @param ticketId the id of the ticket to check
      */
     @Override
-    public void checkTicket(int ticketId) {
+    public TicketDto checkTicket(int ticketId) {
         TicketDto ticket = this.ticketDao.findById(ticketId).orElse(null);
 
         if (ticket != null)
         {
             if (ticket.isChecked())
             {
-                // already checked
+                return null;
             }
             else
             {
                 List<TicketLineDto> lines = ticket.getTicketLines();
                 ticket.setTicketLines(this.ticketLineScv.checkLines(lines));
                 ticket.setChecked(true);
-                this.ticketDao.save(ticket);
+                return this.ticketDao.save(ticket);
             }
         }
+        return null;
     }
 }

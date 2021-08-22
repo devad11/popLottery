@@ -53,15 +53,6 @@ public class TicketLineServiceImpl implements TicketLineService {
     }
 
     /**
-     * Saves all ticket lines
-     * @param ticketLines List of ticket lines
-     */
-    @Override
-    public void saveNewLines(List<TicketLineDto> ticketLines) {
-            ticketLineDao.saveAll(ticketLines);
-    }
-
-    /**
      * Calculates the result of each line
      * @param ticketLines list of all lines belong to a ticket
      * @return returns all ticket lines updated with individual results
