@@ -45,7 +45,7 @@ public class TicketController {
      */
     @Validated
     @GetMapping({"/{ticketId}"})
-    public ResponseEntity<TicketDto> getTicket(@Min(1) @PathVariable("ticketId") int ticketId) {
+    public ResponseEntity<TicketDto> getAllTickets(@Min(1) @PathVariable("ticketId") int ticketId) {
 
         TicketDto ticket = ticketService.getTicketById(ticketId);
 
@@ -78,7 +78,7 @@ public class TicketController {
      * @return list of all tickets if any
      */
     @GetMapping("/all")
-    public ResponseEntity<List<TicketDto>> getTicket() {
+    public ResponseEntity<List<TicketDto>> getAllTickets() {
         if(ticketService.listAllTickets().size() == 0)
         {
             return new ResponseEntity("There are no tickets! :(", HttpStatus.NOT_FOUND);

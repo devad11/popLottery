@@ -1,5 +1,7 @@
 package devad.springframework.poplottery.web.controller;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import devad.springframework.poplottery.web.controller.form.LineNumberForm;
 import devad.springframework.poplottery.web.model.TicketDto;
 import devad.springframework.poplottery.web.model.TicketLineDto;
 import devad.springframework.poplottery.web.service.TicketService;
@@ -10,14 +12,16 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 
 import java.sql.Timestamp;
 import java.util.ArrayList;
-import java.util.Date;
+import java.util.Arrays;
 import java.util.List;
 
 import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(TicketController.class)
@@ -25,11 +29,13 @@ class TicketControllerTest {
 
     @MockBean
     TicketService ticketScv;
-
     @Autowired
     MockMvc mockMvc;
 
     TicketDto validTicket;
+
+    @Autowired
+    ObjectMapper objectMapper;
 
     @BeforeEach
     void setUp() {
@@ -79,26 +85,102 @@ class TicketControllerTest {
     }
 
     @Test
-    void createTicket() {
+    void createTicket() throws Exception {
+        int noOfLines = 4;
+        LineNumberForm lineNumberForm = new LineNumberForm();
+        lineNumberForm.setNoOfLines(noOfLines);
+
+        given(ticketScv.createNewTicket(lineNumberForm.getNoOfLines())).willReturn(validTicket);
+
+        mockMvc.perform(post("/api/v1/ticket/newticket").accept(MediaType.APPLICATION_JSON)
+                .contentType(MediaType.APPLICATION_FORM_URLENCODED)
+                .param("noOfLines", String.valueOf(noOfLines)))
+                .andExpect(status().isCreated());
     }
 
     @Test
     void getTicket() throws Exception {
         given(ticketScv.getTicketById(1)).willReturn(validTicket);
-
         mockMvc.perform(get("/api/v1/ticket/1").accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
     }
 
     @Test
-    void testGetTicket() {
+    void testGetAllTicketsWithEmptyList() throws Exception {
+        given(ticketScv.listAllTickets()).willReturn(new ArrayList<>());
+
+        mockMvc.perform(get("/api/v1/ticket/all").accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound())
+                .andExpect(content().string("There are no tickets! :("));
     }
 
     @Test
-    void addNewLines() {
+    void testGetAllTickets() throws Exception {
+        given(ticketScv.listAllTickets()).willReturn(new ArrayList<TicketDto>(Arrays.asList(validTicket)));
+
+        mockMvc.perform(get("/api/v1/ticket/all").accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk());
     }
 
     @Test
-    void checkTicket() {
+    void addNewLinesChecked() throws Exception {
+
+        int noOfLines = 10;
+        LineNumberForm lineNumberForm = new LineNumberForm();
+        lineNumberForm.setNoOfLines(noOfLines);
+        validTicket.setChecked(true);
+        given(ticketScv.amend(1, lineNumberForm.getNoOfLines())).willReturn(validTicket);
+
+        mockMvc.perform(put("/api/v1/ticket/1").accept(MediaType.APPLICATION_JSON)
+                        .contentType(MediaType.APPLICATION_FORM_URLENCODED)
+                        .param("noOfLines", String.valueOf(noOfLines)))
+                .andExpect(status().isBadRequest())
+                .andExpect(content().string("Ticket is checked already! Cannot amend!"));;
+    }
+
+    @Test
+    void addNewLinesNotExist() throws Exception {
+
+        int noOfLines = 10;
+        LineNumberForm lineNumberForm = new LineNumberForm();
+        lineNumberForm.setNoOfLines(noOfLines);
+        given(ticketScv.amend(1, lineNumberForm.getNoOfLines())).willReturn(null);
+
+        mockMvc.perform(put("/api/v1/ticket/1").accept(MediaType.APPLICATION_JSON)
+                        .contentType(MediaType.APPLICATION_FORM_URLENCODED)
+                        .param("noOfLines", String.valueOf(noOfLines)))
+                .andExpect(status().isNotFound())
+                .andExpect(content().string("The ticket id and the number of lines must be valid!"));;
+    }
+
+    @Test
+    void addNewLines() throws Exception {
+
+        int noOfLines = 10;
+        LineNumberForm lineNumberForm = new LineNumberForm();
+        lineNumberForm.setNoOfLines(noOfLines);
+        given(ticketScv.amend(1, lineNumberForm.getNoOfLines())).willReturn(validTicket);
+
+        mockMvc.perform(put("/api/v1/ticket/1").accept(MediaType.APPLICATION_JSON)
+                        .contentType(MediaType.APPLICATION_FORM_URLENCODED)
+                        .param("noOfLines", String.valueOf(noOfLines)))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    void checkTicket() throws Exception {
+        given(ticketScv.checkTicket(1)).willReturn(validTicket);
+
+        mockMvc.perform(put("/api/v1/ticket/check/1").accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    void checkTicketNotAvailable() throws Exception {
+        given(ticketScv.checkTicket(1)).willReturn(null);
+
+        mockMvc.perform(put("/api/v1/ticket/check/1").accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound())
+                .andExpect(content().string("The ticket doesn't exist or already checked!"));
     }
 }
