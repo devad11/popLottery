@@ -43,8 +43,7 @@ public class TicketServiceImpl implements TicketService {
         }
 
         TicketDto ticket = TicketDto.builder().build();
-        ticket = this.ticketDao.save(ticket);
-        ticket.setTicketLines(this.ticketLineScv.createLines(ticket, noOfLines));
+        ticket.setTicketLines(ticketLineScv.createLines(ticket, noOfLines));
         return this.ticketDao.save(ticket);
     }
 
@@ -59,13 +58,13 @@ public class TicketServiceImpl implements TicketService {
 
     /**
      * Adds new lines to a ticket which not have been checked yet
-     * @param id the id of the ticket
+     * @param ticketId the id of the ticket
      * @param noOfLines indicates how many lines to add to ticket
      * @return the total number of lines (old + new)
      */
     @Override
-    public TicketDto amend(int id, int noOfLines) {
-        TicketDto ticket = this.ticketDao.findById(id).orElse(null);
+    public TicketDto amend(int ticketId, int noOfLines) {
+        TicketDto ticket = this.ticketDao.findById(ticketId).orElse(null);
 
         if (noOfLines > 0 && ticket != null)
         {

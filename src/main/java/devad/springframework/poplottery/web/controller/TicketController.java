@@ -45,7 +45,7 @@ public class TicketController {
      */
     @Validated
     @GetMapping({"/{ticketId}"})
-    public ResponseEntity<TicketDto> getAllTickets(@Min(1) @PathVariable("ticketId") int ticketId) {
+    public ResponseEntity<TicketDto> getTicketById(@Min(1) @PathVariable("ticketId") int ticketId) {
 
         TicketDto ticket = ticketService.getTicketById(ticketId);
 
