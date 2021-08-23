@@ -38,7 +38,7 @@ public class TicketLineServiceImpl implements TicketLineService {
      * Generates specific numbers from a specific range
      * @return a list of the generated numbers
      */
-    private List<Integer> generateValues(){
+    public List<Integer> generateValues(){
         int noOfValues = 3;
         int minValue = 0;
         int maxValue = 3;
@@ -89,7 +89,7 @@ public class TicketLineServiceImpl implements TicketLineService {
      * @param sumNumber the specific number to match with
      * @return boolean based on win or lose this check
      */
-    private boolean sumCheck(List<Integer> values, int sumNumber){
+    public boolean sumCheck(List<Integer> values, int sumNumber){
         int sumOfValues = values.stream().mapToInt(Integer::intValue).sum();
         return sumOfValues == sumNumber;
     }
@@ -99,7 +99,7 @@ public class TicketLineServiceImpl implements TicketLineService {
      * @param values all numbers from a line
      * @return boolean based on win or lose this check
      */
-    private boolean differentFromFirstCheck(List<Integer> values) {
+    public boolean differentFromFirstCheck(List<Integer> values) {
         int firstValue = values.get(0);
         long matchWithFirst = values.stream().filter(v -> v != firstValue).count();
         return matchWithFirst == (values.size() - 1);
@@ -110,7 +110,7 @@ public class TicketLineServiceImpl implements TicketLineService {
      * @param values all numbers from a line
      * @return boolean based on win or lose this check
      */
-    private boolean allSameCheck(List<Integer> values){
+    public boolean allSameCheck(List<Integer> values){
         int firstValue = values.get(0);
         long matchWithFirst = values.stream().filter(v -> v == firstValue).count();
         return matchWithFirst == values.size();
