@@ -13,9 +13,6 @@ import java.util.Random;
 @Service
 public class TicketLineServiceImpl implements TicketLineService {
 
-    @Autowired
-    TicketLineDao ticketLineDao;
-
     /**
      * Generates new lines for a ticket
      * @param ticketDto the parent object

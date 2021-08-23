@@ -4,6 +4,8 @@ import devad.springframework.poplottery.web.dao.TicketDao;
 import devad.springframework.poplottery.web.model.TicketDto;
 import devad.springframework.poplottery.web.model.TicketLineDto;
 import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -11,7 +13,6 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-@Slf4j
 @Service
 public class TicketServiceImpl implements TicketService {
 
@@ -19,6 +20,8 @@ public class TicketServiceImpl implements TicketService {
     TicketDao ticketDao;
     @Autowired
     TicketLineService ticketLineScv;
+
+    Logger logger = LoggerFactory.getLogger(TicketServiceImpl.class);
 
     /**
      * Find a ticket with a specific id
@@ -81,6 +84,7 @@ public class TicketServiceImpl implements TicketService {
                 return this.ticketDao.save(ticket);
             }
         }
+        logger.warn(String.format("Ticket was not found. ticketId %s", ticketId));
         return null;
     }
 
@@ -106,6 +110,7 @@ public class TicketServiceImpl implements TicketService {
                 return this.ticketDao.save(ticket);
             }
         }
+        logger.warn(String.format("Ticket was not found. ticketId %s", ticketId));
         return null;
     }
 }

@@ -4,8 +4,6 @@ import devad.springframework.poplottery.web.controller.form.LineNumberForm;
 import devad.springframework.poplottery.web.model.TicketDto;
 import devad.springframework.poplottery.web.service.TicketService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -13,7 +11,6 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import javax.validation.constraints.Min;
-import javax.validation.constraints.NotNull;
 import java.util.List;
 
 @RequiredArgsConstructor
@@ -21,7 +18,7 @@ import java.util.List;
 @RestController
 public class TicketController {
 
-    private final TicketService ticketService;
+    private final TicketService ticketSvc;
 
     /**
      * Creates a new ticket with a specific number of lines
@@ -30,7 +27,7 @@ public class TicketController {
      */
     @PostMapping("/newticket")
     public ResponseEntity<TicketDto> createTicket(@Valid @ModelAttribute("aLineNumberForm") LineNumberForm lineNumberForm){
-        TicketDto ticket = ticketService.createNewTicket(lineNumberForm.getNoOfLines());
+            TicketDto ticket = this.ticketSvc.createNewTicket(lineNumberForm.getNoOfLines());
         if(ticket == null)
         {
             return new ResponseEntity("Must add at least 1 line when creating new ticket", HttpStatus.BAD_REQUEST);
@@ -47,7 +44,7 @@ public class TicketController {
     @GetMapping({"/{ticketId}"})
     public ResponseEntity<TicketDto> getTicketById(@Min(1) @PathVariable("ticketId") int ticketId) {
 
-        TicketDto ticket = ticketService.getTicketById(ticketId);
+        TicketDto ticket = this.ticketSvc.getTicketById(ticketId);
 
         if(ticket == null)
         {
@@ -79,11 +76,11 @@ public class TicketController {
      */
     @GetMapping("/all")
     public ResponseEntity<List<TicketDto>> getAllTickets() {
-        if(ticketService.listAllTickets().size() == 0)
+        if(this.ticketSvc.listAllTickets().size() == 0)
         {
             return new ResponseEntity("There are no tickets! :(", HttpStatus.NOT_FOUND);
         }
-        return new ResponseEntity<>(ticketService.listAllTickets(), HttpStatus.OK);
+        return new ResponseEntity<>(this.ticketSvc.listAllTickets(), HttpStatus.OK);
     }
 
     /**
@@ -95,7 +92,7 @@ public class TicketController {
     @Validated
     @PutMapping({"/{ticketId}"})
     ResponseEntity<TicketDto> addNewLines(@Min(1) @PathVariable("ticketId") int ticketId, @Valid @ModelAttribute("aLineNumberForm") LineNumberForm lineNumberForm) {
-        TicketDto ticket = ticketService.amend(ticketId, lineNumberForm.getNoOfLines());
+        TicketDto ticket = this.ticketSvc.amend(ticketId, lineNumberForm.getNoOfLines());
         if (ticket == null)
         {
             return new ResponseEntity("The ticket id and the number of lines must be valid!", HttpStatus.NOT_FOUND);
@@ -113,13 +110,13 @@ public class TicketController {
      */
     @PutMapping("/check/{ticketId}")
     ResponseEntity<TicketDto> checkTicket(@PathVariable("ticketId") int ticketId) {
-        TicketDto ticket = ticketService.checkTicket(ticketId);
+        TicketDto ticket = this.ticketSvc.checkTicket(ticketId);
 
         if (ticket == null)
         {
             return new ResponseEntity("The ticket doesn't exist or already checked!", HttpStatus.NOT_FOUND);
         }
-        return new ResponseEntity<>(this.ticketService.getTicketById(ticketId), HttpStatus.OK);
+        return new ResponseEntity<>(this.ticketSvc.getTicketById(ticketId), HttpStatus.OK);
     }
 
 }
